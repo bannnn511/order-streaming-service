@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"order-streaming-services/cmd/order_service/config"
 	v1 "order-streaming-services/internal/order_service/controller/http/v1"
 )
 
@@ -26,4 +27,16 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return nil
+}
+
+type App struct {
+	Cfg       *config.Config
+	KafkaConn string
+}
+
+func New(cfg *config.Config, kafkaConn string) *App {
+	return &App{
+		Cfg:       cfg,
+		KafkaConn: kafkaConn,
+	}
 }

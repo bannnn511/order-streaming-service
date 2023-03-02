@@ -1,13 +1,14 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"order-streaming-services/internal/order_service/domain/beans"
+	"order-streaming-services/internal/order_service/domain"
+	"order-streaming-services/internal/order_service/usecases/order_service"
 )
 
 type orderServiceRoutes struct {
+	uc order_service.UserCase
 }
 
 func newOrderServiceRoutes(handler *echo.Group) {
@@ -18,7 +19,7 @@ func newOrderServiceRoutes(handler *echo.Group) {
 }
 
 type createOrderRequest struct {
-	OrderBean beans.OrderBean `json:"order_bean" validate:"required"`
+	OrderBean domain.OrderBean `json:"order_bean" validate:"required"`
 }
 
 /*
@@ -35,6 +36,5 @@ func (o orderServiceRoutes) createOrder(e echo.Context) error {
 		return err
 	}
 
-	fmt.Println("here", request)
 	return e.JSON(http.StatusCreated, "OK")
 }

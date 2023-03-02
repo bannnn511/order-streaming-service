@@ -34,7 +34,7 @@ func NewKafkaConn(kafkaURL KafkaConnStr, topic string, partition int) (*kafka.Co
 		}
 
 		if counts > retryTimes {
-			slog.Error("failed to rety", err)
+			slog.Error("failed to retry", err)
 			return nil, ErrCannotConnectKafka
 		}
 

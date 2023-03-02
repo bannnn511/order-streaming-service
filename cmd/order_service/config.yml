@@ -1,0 +1,13 @@
+app:
+  name: 'order-service'
+  version: '1.0.0'
+
+http:
+  host: '0.0.0.0'
+  port: 3000
+
+kafka:
+  url: broker:29092
+
+logger:
+  log_level: debug

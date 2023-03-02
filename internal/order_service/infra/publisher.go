@@ -8,4 +8,6 @@ type (
 	}
 )
 
-func NewOrderServiceEventPublisher(pub producer.MessagePublisher)
+func NewOrderServiceEventPublisher(pub producer.MessagePublisher) {
+
+}

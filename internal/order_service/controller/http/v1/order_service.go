@@ -1,18 +1,22 @@
 package v1
 
 import (
+	"context"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"order-streaming-services/internal/order_service/domain"
-	"order-streaming-services/internal/order_service/usecases/order_service"
+	"order-streaming-services/internal/order_service/usecases"
 )
 
 type orderServiceRoutes struct {
-	uc order_service.UserCase
+	uc usecases.UserCase
 }
 
-func newOrderServiceRoutes(handler *echo.Group) {
-	r := &orderServiceRoutes{}
+func newOrderServiceRoutes(handler *echo.Group, uc usecases.UserCase) {
+	r := &orderServiceRoutes{
+		uc: uc,
+	}
 
 	h := handler.Group("/order-service")
 	h.POST("/orders", r.createOrder)
@@ -32,8 +36,8 @@ func (o orderServiceRoutes) createOrder(e echo.Context) error {
 		return err
 	}
 
-	if err := e.Validate(request); err != nil {
-		return err
+	if err := o.uc.PlaceOrder(context.Background(), &request.OrderBean); err != nil {
+		return fmt.Errorf("http - v1 - createOrder - %w", err)
 	}
 
 	return e.JSON(http.StatusCreated, "OK")

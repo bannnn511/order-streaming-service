@@ -1,0 +1,13 @@
+POST http://localhost:3000/v1/order-service/orders
+Content-Type: application/json
+
+{
+  "order_bean": {
+    "id": "1",
+    "customer_id": "2",
+    "quantity": 10,
+    "price": 10.5
+  }
+}
+
+###

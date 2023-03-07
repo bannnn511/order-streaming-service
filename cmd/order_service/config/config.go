@@ -29,15 +29,6 @@ func NewConfig() (*Config, error) {
 		log.Fatal(err)
 	}
 
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fmt.Println(file.Name(), file.IsDir())
-	}
-
 	// debug
 	fmt.Println("config path: " + dir)
 

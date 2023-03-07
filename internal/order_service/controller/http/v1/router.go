@@ -4,9 +4,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"net/http"
+	"order-streaming-services/internal/order_service/usecases"
 )
 
-func NewRouter(handler *echo.Echo) {
+func NewRouter(handler *echo.Echo, uc usecases.UserCase) {
 	// Option
 	handler.Use(middleware.Logger())
 	handler.Use(middleware.Recover())
@@ -18,5 +19,5 @@ func NewRouter(handler *echo.Echo) {
 
 	// Routers
 	group := handler.Group("/v1")
-	newOrderServiceRoutes(group)
+	newOrderServiceRoutes(group, uc)
 }

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github.com/segmentio/kafka-go"
 	"golang.org/x/exp/slog"
+	"net"
+	"strconv"
 	"time"
 )
 
@@ -13,18 +15,21 @@ const (
 	backOffSeconds = 2
 )
 
-type KafkaConnStr string
-
 var ErrCannotConnectKafka = errors.New("cannot connect to Kafka")
 
-func NewKafkaConn(kafkaURL KafkaConnStr, topic string, partition int) (*kafka.Conn, error) {
+type Conn struct {
+	Conn      *kafka.Conn
+	topic     string
+	partition int
+}
+
+func NewKafkaConn(kafkaURL string, topic string, partition int) (*Conn, error) {
 	var (
 		counts    int
 		kafkaConn *kafka.Conn
 	)
-
 	for {
-		leader, err := kafka.DialLeader(context.Background(), "tcp", string(kafkaURL), topic, partition)
+		leader, err := kafka.DialLeader(context.Background(), "tcp", kafkaURL, topic, partition)
 		if err != nil {
 			slog.Error("failed to connect to Kafka...", err, kafkaURL)
 			counts++
@@ -45,5 +50,35 @@ func NewKafkaConn(kafkaURL KafkaConnStr, topic string, partition int) (*kafka.Co
 
 	slog.Info("connected to Kafka")
 
-	return kafkaConn, nil
+	return &Conn{
+		Conn:      kafkaConn,
+		topic:     topic,
+		partition: partition,
+	}, nil
+}
+
+func (c Conn) CreateTopic(topic string, partition int) error {
+	controller, err := c.Conn.Controller()
+	if err != nil {
+		panic(err.Error())
+	}
+	var controllerConn *kafka.Conn
+	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		panic(err.Error())
+	}
+	defer controllerConn.Close()
+
+	topicConfigs := []kafka.TopicConfig{
+		{
+			Topic:             topic,
+			NumPartitions:     partition,
+			ReplicationFactor: 1,
+		},
+	}
+
+	if err := controllerConn.CreateTopics(topicConfigs...); err != nil {
+		return err
+	}
+	return nil
 }

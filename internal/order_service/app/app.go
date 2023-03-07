@@ -1,21 +1,20 @@
 package app
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
+	"context"
+	"fmt"
+	"golang.org/x/exp/slog"
 	"net/http"
 	"order-streaming-services/cmd/order_service/config"
 	v1 "order-streaming-services/internal/order_service/controller/http/v1"
+	"order-streaming-services/internal/order_service/usecases"
+	"order-streaming-services/internal/order_service/usecases/kafka"
+	kafka2 "order-streaming-services/pkg/kafka"
+	"order-streaming-services/pkg/kafka/producer"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
-
-func Run() {
-	handler := echo.New()
-	handler.Validator = &CustomValidator{validator: validator.New()}
-
-	v1.NewRouter(handler)
-
-	handler.Logger.Fatal(handler.Start(":3000"))
-}
 
 type CustomValidator struct {
 	validator *validator.Validate
@@ -29,14 +28,24 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
-type App struct {
-	Cfg       *config.Config
-	KafkaConn string
-}
-
-func New(cfg *config.Config, kafkaConn string) *App {
-	return &App{
-		Cfg:       cfg,
-		KafkaConn: kafkaConn,
+func Run(ctx context.Context, cancel context.CancelFunc, cfg *config.Config) {
+	handler := echo.New()
+	handler.Validator = &CustomValidator{validator: validator.New()}
+	kafkaConn, err := kafka2.NewKafkaConn(cfg.Kafka.URL, "order-service", 0)
+	if err != nil {
+		slog.Error("failed to init app", err)
+		cancel()
+		<-ctx.Done()
 	}
+
+	messagePublisher, cleanup := producer.NewPublisher(kafkaConn.Conn)
+	defer cleanup()
+
+	orderServiceKafka := kafka.NewOrderSerViceKafka(messagePublisher)
+	orderServiceKafka.Configure("order-service")
+	uc := usecases.NewUseCase(orderServiceKafka)
+
+	v1.NewRouter(handler, uc)
+
+	handler.Logger.Fatal(handler.Start(fmt.Sprintf("%v:%v", cfg.Host, cfg.Port)))
 }

@@ -13,14 +13,15 @@ type publisher struct {
 
 var _ MessagePublisher = (*publisher)(nil)
 
-func NewPublisher(conn, topic string) (MessagePublisher, func() error) {
+func NewPublisher(kafkaConn *kafka.Conn) (MessagePublisher, func() error) {
+	fmt.Println(kafkaConn.RemoteAddr())
 	writer := &kafka.Writer{
-		Addr:     kafka.TCP(conn),
-		Topic:    topic,
-		Balancer: &kafka.LeastBytes{},
+		Addr:                   kafkaConn.RemoteAddr(),
+		Balancer:               &kafka.LeastBytes{},
+		AllowAutoTopicCreation: true,
 	}
 
-	return &publisher{writer: writer, topic: topic}, func() error {
+	return &publisher{writer: writer}, func() error {
 		if err := writer.Close(); err != nil {
 			return err
 		}
@@ -30,7 +31,13 @@ func NewPublisher(conn, topic string) (MessagePublisher, func() error) {
 
 }
 
-func (p publisher) Publish(ctx context.Context, key []byte, value []byte) error {
+func (p *publisher) Configure(topic string) {
+	fmt.Println("config", topic)
+	p.topic = topic
+	p.writer.Topic = topic
+}
+
+func (p *publisher) Publish(ctx context.Context, key []byte, value []byte) error {
 	msg := kafka.Message{
 		Key:   key,
 		Value: value,

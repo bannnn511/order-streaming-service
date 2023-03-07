@@ -5,7 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/exp/slog"
 	"order-streaming-services/cmd/order_service/config"
-	"order-streaming-services/internal/order_service/app"
+	"order-streaming-services/internal/orders/app"
 	"order-streaming-services/pkg/logger"
 	"os"
 	"os/signal"

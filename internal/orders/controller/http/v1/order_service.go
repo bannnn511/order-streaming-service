@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"order-streaming-services/internal/order_service/domain"
-	"order-streaming-services/internal/order_service/usecases"
+	"order-streaming-services/internal/orders/domain"
+	"order-streaming-services/internal/orders/usecases"
 )
 
 type orderServiceRoutes struct {

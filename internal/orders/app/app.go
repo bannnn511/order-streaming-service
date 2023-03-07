@@ -6,9 +6,9 @@ import (
 	"golang.org/x/exp/slog"
 	"net/http"
 	"order-streaming-services/cmd/order_service/config"
-	v1 "order-streaming-services/internal/order_service/controller/http/v1"
-	"order-streaming-services/internal/order_service/usecases"
-	"order-streaming-services/internal/order_service/usecases/kafka"
+	v1 "order-streaming-services/internal/orders/controller/http/v1"
+	"order-streaming-services/internal/orders/usecases"
+	"order-streaming-services/internal/orders/usecases/kafka"
 	kafka2 "order-streaming-services/pkg/kafka"
 	"order-streaming-services/pkg/kafka/producer"
 

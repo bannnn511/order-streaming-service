@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"context"
-	"order-streaming-services/internal/order_service/domain"
+	"order-streaming-services/internal/orders/domain"
 )
 
 type (

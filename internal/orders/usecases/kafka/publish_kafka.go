@@ -3,7 +3,7 @@ package kafka
 import (
 	"context"
 	"fmt"
-	"order-streaming-services/internal/order_service/domain"
+	"order-streaming-services/internal/orders/domain"
 	"order-streaming-services/pkg/kafka/producer"
 )
 

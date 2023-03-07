@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"net/http"
-	"order-streaming-services/internal/order_service/usecases"
+	"order-streaming-services/internal/orders/usecases"
 )
 
 func NewRouter(handler *echo.Echo, uc usecases.UserCase) {

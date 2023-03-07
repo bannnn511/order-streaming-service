@@ -32,7 +32,7 @@ func NewConfig() (*Config, error) {
 	// debug
 	fmt.Println("config path: " + dir)
 
-	err = cleanenv.ReadConfig(dir+"/cmd/order_service/config.yml", cfg)
+	err = cleanenv.ReadConfig(dir+"/cmd/orders/config.yml", cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}

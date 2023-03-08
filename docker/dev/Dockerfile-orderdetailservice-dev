@@ -5,7 +5,7 @@ WORKDIR /app
 
 RUN go install github.com/cosmtrek/air@latest
 
-COPY go.mod go.sum pkg air/order.air.toml internal/orders cmd/orders ./
+COPY go.mod go.sum pkg air/order-detail.air.toml internal/order_details cmd/order_details ./
 RUN go mod download
 
-CMD ["air", "-c", "order.air.toml"]
+CMD ["air", "-c", "order-detail.air.toml"]

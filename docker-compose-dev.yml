@@ -32,6 +32,20 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./:/app
+      - ./cmd/orders:/app/cmd/orders
+      - ./internal/orders/:/app/internal/orders
+      - ./pkg:/app/pkg
+    depends_on:
+      - broker
+  order_detail_service:
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile-orderdetailservice-dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./cmd/order_details:/app/cmd/order_details
+      - ./internal/order_details/:/app/internal/order_details
+      - ./pkg:/app/pkg
     depends_on:
       - broker

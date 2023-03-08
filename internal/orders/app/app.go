@@ -1,19 +1,15 @@
 package app
 
 import (
-	"context"
 	"fmt"
-	"golang.org/x/exp/slog"
-	"net/http"
-	"order-streaming-services/cmd/order_service/config"
-	v1 "order-streaming-services/internal/orders/controller/http/v1"
-	"order-streaming-services/internal/orders/usecases"
-	"order-streaming-services/internal/orders/usecases/kafka"
-	kafka2 "order-streaming-services/pkg/kafka"
-	"order-streaming-services/pkg/kafka/producer"
-
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
+	"net/http"
+	"order-streaming-services/cmd/orders/config"
+	v1 "order-streaming-services/internal/orders/controller/http/v1"
+	"order-streaming-services/internal/orders/infras/kafka"
+	"order-streaming-services/internal/orders/usecases"
+	"order-streaming-services/pkg/kafka"
 )
 
 type CustomValidator struct {
@@ -28,21 +24,14 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func Run(ctx context.Context, cancel context.CancelFunc, cfg *config.Config) {
+func Run(cfg *config.Config) {
 	handler := echo.New()
 	handler.Validator = &CustomValidator{validator: validator.New()}
-	kafkaConn, err := kafka2.NewKafkaConn(cfg.Kafka.URL, "order-service", 0)
-	if err != nil {
-		slog.Error("failed to init app", err)
-		cancel()
-		<-ctx.Done()
-	}
 
-	messagePublisher, cleanup := producer.NewPublisher(kafkaConn.Conn)
-	defer cleanup()
+	publisher := kafka.NewPublisher([]string{cfg.Kafka.URL})
+	defer publisher.Close()
 
-	orderServiceKafka := kafka.NewOrderSerViceKafka(messagePublisher)
-	orderServiceKafka.Configure("order-service")
+	orderServiceKafka := message.NewOrderSerViceKafka(publisher)
 	uc := usecases.NewUseCase(orderServiceKafka)
 
 	v1.NewRouter(handler, uc)

@@ -2,13 +2,13 @@ package usecases
 
 import (
 	"context"
+	"github.com/segmentio/kafka-go"
 	"order-streaming-services/internal/orders/domain"
 )
 
 type (
 	OrderServiceKafka interface {
-		Publish(context.Context, *domain.OrderBean) error
-		Configure(topic string)
+		Publish(context.Context, ...kafka.Message) error
 	}
 
 	UserCase interface {
